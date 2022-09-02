@@ -19,7 +19,12 @@ public class AuthenticationService {
 
     @Autowired
     private UserRepository usersRepository;
-    
+
+    public boolean isAdmin(HttpSession session){
+        String role = (String) session.getAttribute("ROLE");
+        return role != null && role.equals("admin");
+    }
+
     public boolean isUserLogged(HttpSession session) {
         Long loggedUserId = this.getLoggedUserId(session);
         return loggedUserId != null;
@@ -60,6 +65,7 @@ public class AuthenticationService {
         if (userOptional.isPresent()) {
             User userEntity = userOptional.get();
             session.setAttribute("LOGGED_USER_ID", userEntity.getId());
+            session.setAttribute("ROLE", userEntity.getRole());
             return new UserActionResponse(true, "Login operation succeed.");
         }
         return new UserActionResponse(false, "Login operation failed (Incorrect user credentials).");
@@ -69,6 +75,7 @@ public class AuthenticationService {
         HttpSession session = request.getSession();
         if (this.isUserLogged(session)) {
             session.removeAttribute("LOGGED_USER_ID");
+            session.removeAttribute("ROLE");
             return new UserActionResponse(true, "Logout operation succeed.");
         }
         return new UserActionResponse(false, "Logout operation failed (Currently, You are not logged in).");

@@ -12,17 +12,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 
 @Service
 public class UserService {
     @Autowired private UserRepository repo;
-    public ManyObjectResponse getAll(Integer pageNumber, Integer pageSize){
+    @Autowired private AuthenticationService authService;
+    public ManyObjectResponse getAll(Integer pageNumber, Integer pageSize, HttpSession session){
+        if(!authService.isAdmin(session))
+            return new ManyObjectResponse(0l, HttpStatus.UNAUTHORIZED,"You don't have permission to this route", null);
+
         Long totalCount = repo.count();
         pageNumber--;
 
         Pageable paging = PageRequest.of(pageNumber, pageSize);
-        Page<User> pagedResult = repo.findAll( paging);
+        Page<User> pagedResult = repo.findAll(paging);
 
         pageNumber++;
         if(pagedResult.hasContent()) {
@@ -32,17 +37,22 @@ public class UserService {
         }
     }
 
-    public OneObjectResponse getOne(Long id){
+    public OneObjectResponse getOne(Long id, HttpSession session){
+        if(!authService.isAdmin(session))
+            return new OneObjectResponse(HttpStatus.UNAUTHORIZED, "You don't have permission to this route", null);
+
         if(repo.findById(id).isEmpty())
             return new OneObjectResponse(HttpStatus.BAD_REQUEST, "User with this ID doesn't exists", null);
 
         User user = repo.findById(id).get();
 
         return new OneObjectResponse(HttpStatus.OK, "This is data of user with ID " + id, user);
-
     }
 
-    public OneObjectResponse deleteOne(Long id){
+    public OneObjectResponse deleteOne(Long id, HttpSession session){
+        if(!authService.isAdmin(session))
+            return new OneObjectResponse(HttpStatus.UNAUTHORIZED, "You don't have permission to this route", null);
+
         try{
             repo.deleteById(id);
             return new OneObjectResponse(HttpStatus.NO_CONTENT, "User with ID " + id + " successfully deleted", null);
@@ -56,7 +66,10 @@ public class UserService {
         return new OneObjectResponse(HttpStatus.CREATED, "New user successfully created", savedUser);
     }
 
-    public OneObjectResponse updateOne(Long id, User user){
+    public OneObjectResponse updateOne(Long id, User user, HttpSession session){
+        if(!authService.isAdmin(session))
+            return new OneObjectResponse(HttpStatus.UNAUTHORIZED, "You don't have permission to this route", null);
+
         if(repo.findById(id).isEmpty())
             return new OneObjectResponse(HttpStatus.BAD_REQUEST, "User with this ID doesn't exists", null);
 

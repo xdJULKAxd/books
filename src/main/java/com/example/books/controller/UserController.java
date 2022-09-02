@@ -10,16 +10,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 @Controller
 public class UserController {
     @Autowired private UserService service;
 
     @GetMapping("/api/users")
     @ResponseBody
-    public ResponseEntity<ManyObjectResponse> getUsers(@RequestParam(defaultValue = "1") Integer pageNumber,
-                                                      @RequestParam(defaultValue = "10") Integer pageSize){
-
-        ManyObjectResponse data = service.getAll(pageNumber,pageSize);
+    public ResponseEntity<ManyObjectResponse> getUsers(HttpServletRequest request,
+                                                       @RequestParam(defaultValue = "1") Integer pageNumber,
+                                                       @RequestParam(defaultValue = "10") Integer pageSize){
+        HttpSession session = request.getSession();
+        ManyObjectResponse data = service.getAll(pageNumber,pageSize, session);
         return ResponseEntity
                 .status(data.getStatus())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -28,8 +32,9 @@ public class UserController {
 
     @GetMapping("/api/users/{id}")
     @ResponseBody
-    public ResponseEntity<OneObjectResponse> getUser(@PathVariable Long id){
-        OneObjectResponse data = service.getOne(id);
+    public ResponseEntity<OneObjectResponse> getUser(HttpServletRequest request, @PathVariable Long id){
+        HttpSession session = request.getSession();
+        OneObjectResponse data = service.getOne(id, session);
         return ResponseEntity
                 .status(data.getStatus())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -38,8 +43,9 @@ public class UserController {
 
     @DeleteMapping("/api/users/{id}")
     @ResponseBody
-    public ResponseEntity<OneObjectResponse> deleteUser(@PathVariable Long id){
-        OneObjectResponse data = service.deleteOne(id);
+    public ResponseEntity<OneObjectResponse> deleteUser(HttpServletRequest request, @PathVariable Long id){
+        HttpSession session = request.getSession();
+        OneObjectResponse data = service.deleteOne(id, session);
         return ResponseEntity
                 .status(data.getStatus())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -58,8 +64,9 @@ public class UserController {
 
     @PatchMapping("/api/users/{id}")
     @ResponseBody
-    public ResponseEntity<OneObjectResponse> updateUser(@PathVariable Long id, @RequestBody User user){
-        OneObjectResponse data = service.updateOne(id, user);
+    public ResponseEntity<OneObjectResponse> updateUser(HttpServletRequest request, @PathVariable Long id, @RequestBody User user){
+        HttpSession session = request.getSession();
+        OneObjectResponse data = service.updateOne(id, user, session);
         return ResponseEntity
                 .status(data.getStatus())
                 .contentType(MediaType.APPLICATION_JSON)
