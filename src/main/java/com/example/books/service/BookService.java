@@ -29,10 +29,11 @@ public class BookService {
     @Autowired private AuthenticationService authService;
 
     public ManyObjectResponse getAll(Integer pageNumber, Integer pageSize, HttpSession session){
-        Long totalCount = bookRepo.count();
 
         if(!authService.isUserLogged(session))
             return new ManyObjectResponse(0l, HttpStatus.UNAUTHORIZED,"Please login to get access to this route", null);
+
+        Long totalCount = bookRepo.count();
 
         pageNumber--;
         Pageable paging = PageRequest.of(pageNumber, pageSize);
