@@ -42,7 +42,7 @@ public class UserService {
             return new OneObjectResponse(HttpStatus.UNAUTHORIZED, "You don't have permission to this route", null);
 
         if(repo.findById(id).isEmpty())
-            return new OneObjectResponse(HttpStatus.BAD_REQUEST, "User with this ID doesn't exists", null);
+             return new OneObjectResponse(HttpStatus.BAD_REQUEST, "User with this ID doesn't exists", null);
 
         User user = repo.findById(id).get();
 
