@@ -111,25 +111,29 @@ public class BookService {
         if(bookRepo.findById(id).isEmpty())
             return new OneObjectResponse(HttpStatus.BAD_REQUEST, "Book with this ID doesn't exists", null);
 
-        Optional<Language> lang = languageRepo.findByName(book.getLanguage().getName());
-        Language newLang;
-        if(lang.isEmpty()){
-            newLang = book.getLanguage();
-            languageRepo.save(newLang);
-        }else{
-            newLang = lang.get();
+        if(book.getLanguage() != null) {
+            Optional<Language> lang = languageRepo.findByName(book.getLanguage().getName());
+            Language newLang;
+            if (lang.isEmpty()) {
+                newLang = book.getLanguage();
+                languageRepo.save(newLang);
+            } else {
+                newLang = lang.get();
+            }
+            book.setLanguage(newLang);
         }
-        book.setLanguage(newLang);
 
-        Optional<Category> category = categoryRepo.findByName(book.getCategory().getName());
-        Category newCategory;
-        if(category.isEmpty()){
-            newCategory = book.getCategory();
-            categoryRepo.save(newCategory);
-        }else{
-            newCategory = category.get();
+        if(book.getCategory() != null) {
+            Optional<Category> category = categoryRepo.findByName(book.getCategory().getName());
+            Category newCategory;
+            if (category.isEmpty()) {
+                newCategory = book.getCategory();
+                categoryRepo.save(newCategory);
+            } else {
+                newCategory = category.get();
+            }
+            book.setCategory(newCategory);
         }
-        book.setCategory(newCategory);
 
         Book editedBook = bookRepo.findById(id).get();
 
